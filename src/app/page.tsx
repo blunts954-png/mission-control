@@ -20,6 +20,8 @@ import PerformanceCard from '@/components/PerformanceCard'
 import UptimeCard from '@/components/UptimeCard'
 import AIWatchdogCard from '@/components/AIWatchdogCard'
 import AllSitesOverview from '@/components/AllSitesOverview'
+import SEOGEOAEOCard from '@/components/SEOGEOAEOCard'
+import AIFixRecommendations from '@/components/AIFixRecommendations'
 import { SiteConfig, defaultSites } from '@/lib/siteConfig'
 
 // Client-only time display to prevent hydration mismatch
@@ -244,6 +246,23 @@ export default function Dashboard() {
               <div className="lg:col-span-2 xl:col-span-4">
                 <PerformanceCard siteId={selectedSite.id} />
               </div>
+
+              {/* SEO/GEO/AEO Analytics Card */}
+              <div className="lg:col-span-3">
+                <SEOGEOAEOCard
+                  siteId={selectedSite.id}
+                  siteUrl={selectedSite.url}
+                />
+              </div>
+
+              {/* AI Fix Recommendations Card */}
+              <div className="lg:col-span-3">
+                <AIFixRecommendations
+                  siteId={selectedSite.id}
+                  siteName={selectedSite.name}
+                  siteUrl={selectedSite.url}
+                />
+              </div>
             </div>
           </div>
         ) : null}
@@ -259,7 +278,7 @@ export default function Dashboard() {
               <span>{sites.length} Sites Monitored</span>
             </div>
             <div className="flex items-center gap-4">
-              <span>Powered by Better Stack, Netlify, GitHub</span>
+              <span className="text-neon-purple-500 font-medium">Powered by Chaotically Organized AI</span>
             </div>
           </div>
         </footer>
