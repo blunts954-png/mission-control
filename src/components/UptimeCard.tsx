@@ -4,7 +4,6 @@ import { motion } from 'framer-motion'
 import {
   Activity,
   Server,
-  Wifi,
   Clock,
   CheckCircle2,
   AlertCircle,
@@ -31,6 +30,9 @@ interface UptimeData {
 }
 
 interface UptimeCardProps {
+  siteId?: string
+  siteName?: string
+  siteUrl?: string
   data?: UptimeData
   betterStackApiKey?: string
 }
@@ -101,28 +103,66 @@ const getStatusText = (status: 'up' | 'down' | 'paused') => {
   }
 }
 
-export default function UptimeCard({ data = defaultData }: UptimeCardProps) {
+// Client-side time display to prevent hydration mismatch
+function ClientTimeDisplay({ time }: { time: string }) {
+  const [displayTime, setDisplayTime] = useState<string>('--:--')
+
+  useEffect(() => {
+    setDisplayTime(
+      new Date(time).toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    )
+  }, [time])
+
+  return <span>{displayTime}</span>
+}
+
+function LastRefreshDisplay() {
+  const [time, setTime] = useState<string>('--:--:--')
+
+  useEffect(() => {
+    const updateTime = () => {
+      setTime(new Date().toLocaleTimeString())
+    }
+    updateTime()
+    const interval = setInterval(updateTime, 1000)
+    return () => clearInterval(interval)
+  }, [])
+
+  return <span>{time}</span>
+}
+
+export default function UptimeCard({
+  siteId,
+  siteName,
+  siteUrl,
+  data = defaultData
+}: UptimeCardProps) {
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const [lastRefresh, setLastRefresh] = useState(new Date())
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleRefresh = async () => {
     setIsRefreshing(true)
     // In production, this would call the Better Stack API
-    // await fetchBetterStackData(betterStackApiKey)
     await new Promise(resolve => setTimeout(resolve, 1500))
-    setLastRefresh(new Date())
     setIsRefreshing(false)
   }
 
-  // Auto-refresh every 60 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      handleRefresh()
-    }, 60000)
-    return () => clearInterval(interval)
-  }, [])
-
   const isFullUptime = data.availability === 100
+
+  if (!mounted) {
+    return (
+      <div className="cyber-card animate-pulse">
+        <div className="h-48 bg-cyber-gray rounded" />
+      </div>
+    )
+  }
 
   return (
     <motion.div
@@ -148,7 +188,7 @@ export default function UptimeCard({ data = defaultData }: UptimeCardProps) {
               Uptime Monitor
             </h3>
             <p className="text-xs text-gray-500 mt-0.5">
-              Better Stack Integration
+              {siteName || 'Better Stack Integration'}
             </p>
           </div>
         </div>
@@ -275,10 +315,7 @@ export default function UptimeCard({ data = defaultData }: UptimeCardProps) {
                     {monitor.responseTime}ms
                   </div>
                   <div className="text-xs text-gray-500">
-                    {new Date(monitor.lastChecked).toLocaleTimeString('en-US', {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
+                    <ClientTimeDisplay time={monitor.lastChecked} />
                   </div>
                 </div>
               </motion.div>
@@ -289,7 +326,7 @@ export default function UptimeCard({ data = defaultData }: UptimeCardProps) {
 
       {/* Last Refresh */}
       <div className="mt-4 pt-3 border-t border-cyber-border flex items-center justify-between text-xs text-gray-500">
-        <span>Last updated: {lastRefresh.toLocaleTimeString()}</span>
+        <span>Last updated: <LastRefreshDisplay /></span>
         <a
           href="https://betterstack.com"
           target="_blank"
