@@ -1,12 +1,64 @@
 {
   "name": "chaotically-organized-ai-command-center",
   "version": "1.0.0",
+  "description": "Cyber-Noir Command Center for Chaotically Organized AI - Monitor up to 10 websites",
+  "author": "Chaotically Organized AI",
   "private": true,
+  "main": "electron/main.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "export": "next build && next export",
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron:build": "npm run build && electron-builder",
+    "electron:build:win": "npm run build && electron-builder --win",
+    "electron:build:mac": "npm run build && electron-builder --mac",
+    "electron:build:linux": "npm run build && electron-builder --linux",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "build": {
+    "appId": "com.chaoticallyorganizedai.commandcenter",
+    "productName": "COAI Command Center",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*",
+      "out/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "electron/icon.ico"
+    },
+    "mac": {
+      "target": ["dmg", "zip"],
+      "icon": "electron/icon.icns",
+      "category": "public.app-category.developer-tools"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "icon": "electron/icon.png",
+      "category": "Development"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "electron/icon.ico",
+      "uninstallerIcon": "electron/icon.ico",
+      "installerHeaderIcon": "electron/icon.ico"
+    }
   },
   "dependencies": {
     "next": "14.1.0",
@@ -18,12 +70,17 @@
     "date-fns": "^3.3.1"
   },
   "devDependencies": {
+    "@netlify/plugin-nextjs": "^5.0.0",
     "@types/node": "^20.11.16",
     "@types/react": "^18.2.52",
     "@types/react-dom": "^18.2.18",
     "autoprefixer": "^10.4.17",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "electron": "^28.2.0",
+    "electron-builder": "^24.9.1",
+    "concurrently": "^8.2.2",
+    "wait-on": "^7.2.0"
   }
 }

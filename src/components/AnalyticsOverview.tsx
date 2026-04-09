@@ -27,6 +27,7 @@ interface AnalyticsData {
 }
 
 interface AnalyticsOverviewProps {
+  siteId?: string
   data?: AnalyticsData
 }
 
@@ -99,7 +100,7 @@ const StatCard = ({
   </motion.div>
 )
 
-export default function AnalyticsOverview({ data = defaultData }: AnalyticsOverviewProps) {
+export default function AnalyticsOverview({ siteId, data = defaultData }: AnalyticsOverviewProps) {
   const isBounceRateHigh = data.bounceRate > 70
 
   return (

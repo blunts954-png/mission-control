@@ -4,7 +4,6 @@ import { motion } from 'framer-motion'
 import {
   Activity,
   Server,
-  Wifi,
   Clock,
   CheckCircle2,
   AlertCircle,
@@ -12,7 +11,7 @@ import {
   RefreshCw,
   Globe
 } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 interface UptimeData {
   availability: number
@@ -31,8 +30,10 @@ interface UptimeData {
 }
 
 interface UptimeCardProps {
+  siteId?: string
+  siteName?: string
+  siteUrl?: string
   data?: UptimeData
-  betterStackApiKey?: string
 }
 
 const defaultData: UptimeData = {
@@ -101,28 +102,90 @@ const getStatusText = (status: 'up' | 'down' | 'paused') => {
   }
 }
 
-export default function UptimeCard({ data = defaultData }: UptimeCardProps) {
-  const [isRefreshing, setIsRefreshing] = useState(false)
-  const [lastRefresh, setLastRefresh] = useState(new Date())
+// Client-side time display to prevent hydration mismatch
+function ClientTimeDisplay({ time }: { time: string }) {
+  const [displayTime, setDisplayTime] = useState<string>('--:--')
 
-  const handleRefresh = async () => {
-    setIsRefreshing(true)
-    // In production, this would call the Better Stack API
-    // await fetchBetterStackData(betterStackApiKey)
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    setLastRefresh(new Date())
-    setIsRefreshing(false)
-  }
-
-  // Auto-refresh every 60 seconds
   useEffect(() => {
-    const interval = setInterval(() => {
-      handleRefresh()
-    }, 60000)
-    return () => clearInterval(interval)
+    setDisplayTime(
+      new Date(time).toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    )
+  }, [time])
+
+  return <span>{displayTime}</span>
+}
+
+function LastRefreshDisplay({ lastRefresh }: { lastRefresh: Date }) {
+  const [time, setTime] = useState<string>('--:--:--')
+
+  useEffect(() => {
+    setTime(lastRefresh.toLocaleTimeString())
+  }, [lastRefresh])
+
+  return <span>{time}</span>
+}
+
+export default function UptimeCard({
+  siteId,
+  siteName,
+  siteUrl,
+  data: initialData = defaultData
+}: UptimeCardProps) {
+  const [data, setData] = useState<UptimeData>(initialData)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const [lastRefresh, setLastRefresh] = useState(new Date())
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchUptimeData = useCallback(async () => {
+    try {
+      setIsRefreshing(true)
+      setError(null)
+
+      const response = await fetch('/api/uptime')
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch uptime data')
+      }
+
+      const newData = await response.json()
+      setData(newData)
+      setLastRefresh(new Date())
+    } catch (err) {
+      console.error('Failed to fetch uptime data:', err)
+      setError('Failed to fetch data')
+      // Keep existing data on error
+    } finally {
+      setIsRefreshing(false)
+    }
   }, [])
 
+  useEffect(() => {
+    setMounted(true)
+    // Fetch real data on mount
+    fetchUptimeData()
+
+    // Auto-refresh every 60 seconds
+    const interval = setInterval(fetchUptimeData, 60000)
+    return () => clearInterval(interval)
+  }, [fetchUptimeData])
+
+  const handleRefresh = () => {
+    fetchUptimeData()
+  }
+
   const isFullUptime = data.availability === 100
+
+  if (!mounted) {
+    return (
+      <div className="cyber-card animate-pulse">
+        <div className="h-48 bg-cyber-gray rounded" />
+      </div>
+    )
+  }
 
   return (
     <motion.div
@@ -148,11 +211,14 @@ export default function UptimeCard({ data = defaultData }: UptimeCardProps) {
               Uptime Monitor
             </h3>
             <p className="text-xs text-gray-500 mt-0.5">
-              Better Stack Integration
+              {siteName || 'Better Stack Integration'}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {error && (
+            <span className="text-xs text-cyber-red">API Error</span>
+          )}
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -237,59 +303,62 @@ export default function UptimeCard({ data = defaultData }: UptimeCardProps) {
       <div>
         <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
           <Server className="w-4 h-4" />
-          Active Monitors
+          Active Monitors ({data.monitors.length})
         </h4>
-        <div className="space-y-2">
-          {data.monitors.map((monitor, index) => {
-            const status = getStatusText(monitor.status)
-            return (
-              <motion.div
-                key={monitor.id}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 + index * 0.1 }}
-                className="flex items-center justify-between p-3 bg-cyber-gray rounded-lg border border-cyber-border
-                         hover:border-cyber-border/80 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full ${getStatusColor(monitor.status)} ${
-                    monitor.status === 'up' ? 'animate-pulse' : ''
-                  }`} />
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-white">
-                        {monitor.name}
-                      </span>
-                      <span className={`text-xs ${status.color}`}>
-                        {status.text}
-                      </span>
+        <div className="space-y-2 max-h-[200px] overflow-y-auto">
+          {data.monitors.length > 0 ? (
+            data.monitors.map((monitor, index) => {
+              const status = getStatusText(monitor.status)
+              return (
+                <motion.div
+                  key={monitor.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 + index * 0.1 }}
+                  className="flex items-center justify-between p-3 bg-cyber-gray rounded-lg border border-cyber-border
+                           hover:border-cyber-border/80 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-2 h-2 rounded-full ${getStatusColor(monitor.status)} ${
+                      monitor.status === 'up' ? 'animate-pulse' : ''
+                    }`} />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-white">
+                          {monitor.name}
+                        </span>
+                        <span className={`text-xs ${status.color}`}>
+                          {status.text}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <Globe className="w-3 h-3" />
+                        {monitor.url}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1 text-xs text-gray-500">
-                      <Globe className="w-3 h-3" />
-                      {monitor.url}
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-mono text-neon-purple-500">
+                      {monitor.responseTime}ms
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      <ClientTimeDisplay time={monitor.lastChecked} />
                     </div>
                   </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm font-mono text-neon-purple-500">
-                    {monitor.responseTime}ms
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {new Date(monitor.lastChecked).toLocaleTimeString('en-US', {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </div>
-                </div>
-              </motion.div>
-            )
-          })}
+                </motion.div>
+              )
+            })
+          ) : (
+            <div className="text-center text-gray-500 text-sm py-4">
+              No monitors configured in Better Stack
+            </div>
+          )}
         </div>
       </div>
 
       {/* Last Refresh */}
       <div className="mt-4 pt-3 border-t border-cyber-border flex items-center justify-between text-xs text-gray-500">
-        <span>Last updated: {lastRefresh.toLocaleTimeString()}</span>
+        <span>Last updated: <LastRefreshDisplay lastRefresh={lastRefresh} /></span>
         <a
           href="https://betterstack.com"
           target="_blank"

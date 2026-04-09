@@ -33,6 +33,7 @@ interface PerformanceMetrics {
 }
 
 interface PerformanceCardProps {
+  siteId?: string
   metrics?: PerformanceMetrics
 }
 
@@ -148,7 +149,7 @@ const MetricItem = ({
   )
 }
 
-export default function PerformanceCard({ metrics = defaultMetrics }: PerformanceCardProps) {
+export default function PerformanceCard({ siteId, metrics = defaultMetrics }: PerformanceCardProps) {
   const isUnderThreshold = metrics.overallScore < 80
 
   return (
