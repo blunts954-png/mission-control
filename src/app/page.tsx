@@ -1,6 +1,5 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import {
   Cpu,
@@ -14,17 +13,20 @@ import {
   LayoutDashboard,
   Layers
 } from 'lucide-react'
-import SecurityMalwareCard from '@/components/SecurityMalwareCard'
-import PerformanceCard from '@/components/PerformanceCard'
-import UptimeCard from '@/components/UptimeCard'
-import AIWatchdogCard from '@/components/AIWatchdogCard'
 import AllSitesOverview from '@/components/AllSitesOverview'
-import SEOGEOAEOCard from '@/components/SEOGEOAEOCard'
-import AIFixRecommendations from '@/components/AIFixRecommendations'
-import AnalyticsOverview from '@/components/AnalyticsOverview'
-import SSLCard from '@/components/SSLCard'
 import NotificationBell from '@/components/NotificationBell'
 import { SiteConfig, defaultSites, saveSites, loadSites, generateSiteId } from '@/lib/siteConfig'
+
+// Lazy-loaded detail view cards
+import dynamic from 'next/dynamic'
+const SecurityMalwareCard = dynamic(() => import('@/components/SecurityMalwareCard'), { ssr: false })
+const PerformanceCard = dynamic(() => import('@/components/PerformanceCard'), { ssr: false })
+const UptimeCard = dynamic(() => import('@/components/UptimeCard'), { ssr: false })
+const AIWatchdogCard = dynamic(() => import('@/components/AIWatchdogCard'), { ssr: false })
+const SEOGEOAEOCard = dynamic(() => import('@/components/SEOGEOAEOCard'), { ssr: false })
+const AIFixRecommendations = dynamic(() => import('@/components/AIFixRecommendations'), { ssr: false })
+const AnalyticsOverview = dynamic(() => import('@/components/AnalyticsOverview'), { ssr: false })
+const SSLCard = dynamic(() => import('@/components/SSLCard'), { ssr: false })
 
 // Client-only time display to prevent hydration mismatch
 function ClientTime() {
@@ -155,18 +157,10 @@ export default function Dashboard() {
   if (!mounted) {
     return (
       <div className="min-h-screen bg-cyber-black flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center"
-        >
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-            className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-neon-purple-500 border-t-transparent"
-          />
+        <div className="text-center animate-fade-in">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-neon-purple-500 border-t-transparent animate-spin-slow" />
           <div className="text-neon-purple-500 text-xl font-mono">Loading Command Center...</div>
-        </motion.div>
+        </div>
       </div>
     )
   }
@@ -179,14 +173,9 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             {/* Logo & Title */}
             <div className="flex items-center gap-4">
-              <motion.div
-                initial={{ rotate: 0 }}
-                animate={{ rotate: 360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-                className="p-2 rounded-lg bg-gradient-cyber"
-              >
+              <div className="p-2 rounded-lg bg-gradient-cyber animate-spin-slow-20">
                 <Cpu className="w-6 h-6 text-white" />
-              </motion.div>
+              </div>
               <div>
                 <h1 className="text-xl font-bold text-white flex items-center gap-2">
                   Chaotically Organized AI
@@ -382,16 +371,12 @@ function SiteManagerModal({
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in"
       onClick={onClose}
     >
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="bg-cyber-dark border border-cyber-border rounded-xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto"
+      <div
+        className="bg-cyber-dark border border-cyber-border rounded-xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto animate-scale-in"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-6">
@@ -416,11 +401,9 @@ function SiteManagerModal({
         </div>
 
         {/* Add/Edit Form */}
-        {(adding || editingId) && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            className="mb-6 p-4 bg-cyber-gray rounded-lg border border-cyber-border"
+          {(adding || editingId) && (
+          <div
+            className="mb-6 p-4 bg-cyber-gray rounded-lg border border-cyber-border animate-slide-down"
           >
             <h3 className="text-sm font-medium text-white mb-4">{editingId ? 'Edit Site' : 'Add New Site'}</h3>
             <div className="grid grid-cols-2 gap-4">
@@ -484,7 +467,7 @@ function SiteManagerModal({
                 Cancel
               </button>
             </div>
-          </motion.div>
+          </div>
         )}
 
         {/* Sites List */}
@@ -546,7 +529,7 @@ function SiteManagerModal({
             ))
           )}
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   )
 }

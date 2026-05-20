@@ -14,6 +14,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://mission-control-main-five.vercel.app" />
+        <script type="speculationrules" dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            prerender: [{
+              where: { href_matches: "/*" },
+              eagerness: "moderate"
+            }]
+          })
+        }} />
+      </head>
       <body className="bg-cyber-black min-h-screen antialiased">
         {children}
       </body>
