@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import ClientGuard from './ClientGuard'
 
 export const metadata: Metadata = {
   title: 'Chaotically Organized AI - Command Center',
@@ -26,7 +27,9 @@ export default function RootLayout({
         }} />
       </head>
       <body className="bg-cyber-black min-h-screen antialiased">
-        {children}
+        <ClientGuard>
+          {children}
+        </ClientGuard>
       </body>
     </html>
   )

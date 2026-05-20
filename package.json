@@ -11,7 +11,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "audit": "npm audit",
+    "update": "npm update && npm audit fix"
   },
   "dependencies": {
     "@octokit/rest": "^20.0.2",
