@@ -6,7 +6,8 @@ import { runWatchdogAgent, generateWatchdogReport, analyzeHTML } from '@/lib/wat
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { owner, repo, genTime, htmlContent, githubToken } = body
+    const { owner, repo, genTime, htmlContent } = body
+    const githubToken = body.githubToken || request.headers.get('x-api-key-github') || undefined
 
     // If raw HTML content is provided, analyze it directly
     if (htmlContent) {

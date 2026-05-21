@@ -50,7 +50,7 @@ interface HeartbeatResponse {
 }
 
 export async function GET(request: NextRequest) {
-  const apiKey = process.env.BETTER_STACK_UPTIME_API_KEY
+  const apiKey = request.headers.get('x-api-key-betterstack') || process.env.BETTER_STACK_UPTIME_API_KEY
 
   if (!apiKey) {
     return NextResponse.json(
@@ -184,7 +184,7 @@ export async function GET(request: NextRequest) {
 
 // POST endpoint to create a new monitor
 export async function POST(request: NextRequest) {
-  const apiKey = process.env.BETTER_STACK_UPTIME_API_KEY
+  const apiKey = request.headers.get('x-api-key-betterstack') || process.env.BETTER_STACK_UPTIME_API_KEY
 
   if (!apiKey) {
     return NextResponse.json(

@@ -5,6 +5,7 @@ import {
   Cpu,
   Activity,
   Settings,
+  Key,
   User,
   ChevronDown,
   Globe,
@@ -15,6 +16,7 @@ import {
 } from 'lucide-react'
 import AllSitesOverview from '@/components/AllSitesOverview'
 import NotificationBell from '@/components/NotificationBell'
+import ApiKeyManager from '@/components/ApiKeyManager'
 import { SiteConfig, defaultSites, saveSites, loadSites, generateSiteId } from '@/lib/siteConfig'
 
 // Lazy-loaded detail view cards
@@ -48,6 +50,7 @@ export default function Dashboard() {
   const [sites, setSites] = useState<SiteConfig[]>([])
   const [selectedSite, setSelectedSite] = useState<SiteConfig | null>(null)
   const [showSiteManager, setShowSiteManager] = useState(false)
+  const [showApiKeys, setShowApiKeys] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [viewMode, setViewMode] = useState<'overview' | 'detail'>('overview')
 
@@ -227,6 +230,15 @@ export default function Dashboard() {
               {/* Notifications */}
               <NotificationBell />
 
+              {/* API Keys */}
+              <button
+                onClick={() => setShowApiKeys(true)}
+                className="p-2 rounded-lg hover:bg-cyber-gray transition-colors"
+                title="API Keys"
+              >
+                <Key className="w-5 h-5 text-gray-400" />
+              </button>
+
               {/* Settings */}
               <button
                 onClick={() => setShowSiteManager(true)}
@@ -296,6 +308,11 @@ export default function Dashboard() {
           onClose={() => setShowSiteManager(false)}
           onSitesChange={handleSitesChange}
         />
+      )}
+
+      {/* API Key Manager Modal */}
+      {showApiKeys && (
+        <ApiKeyManager onClose={() => setShowApiKeys(false)} />
       )}
     </div>
   )

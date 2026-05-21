@@ -1,6 +1,7 @@
 'use client'
 
 import { Shield, ShieldCheck, ShieldAlert, Clock, ExternalLink } from 'lucide-react'
+import { apiFetch } from '@/lib/apiClient'
 import { useState, useEffect } from 'react'
 import type { SSLInfo } from '@/lib/ssl'
 import ConfigStatusBadge from './ConfigStatusBadge'
@@ -19,7 +20,7 @@ export default function SSLCard({ hostname }: SSLCardProps) {
     async function fetchSSL() {
       try {
         setLoading(true)
-        const response = await fetch(`/api/ssl?hostname=${encodeURIComponent(hostname)}`)
+        const response = await apiFetch(`/api/ssl?hostname=${encodeURIComponent(hostname)}`)
         const data = await response.json()
 
         if (data.error && !data.hostname) {

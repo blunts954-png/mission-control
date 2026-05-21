@@ -1,5 +1,6 @@
 'use client'
 
+import { apiFetch } from '@/lib/apiClient'
 import { motion } from 'framer-motion'
 import {
   Activity,
@@ -157,7 +158,7 @@ export default function UptimeCard({
       setIsRefreshing(true)
       setError(null)
 
-      const response = await fetch('/api/uptime')
+      const response = await apiFetch('/api/uptime')
 
       if (!response.ok) {
         throw new Error('Failed to fetch uptime data')

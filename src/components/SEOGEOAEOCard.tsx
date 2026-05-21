@@ -1,5 +1,6 @@
 'use client'
 
+import { apiFetch } from '@/lib/apiClient'
 import { motion } from 'framer-motion'
 import { useState, useEffect, useCallback } from 'react'
 import {
@@ -128,8 +129,8 @@ export default function SEOGEOAEOCard({ siteId, siteUrl }: SEOGEOAEOCardProps) {
     setIsAnalyzing(true)
     try {
       const [seoResponse, lhResponse] = await Promise.all([
-        fetch(`/api/analytics/seo?siteId=${siteId}&url=${siteUrl}`),
-        fetch(`/api/lighthouse?url=${encodeURIComponent(siteUrl.replace(/^https?:\/\//, '').replace(/\/$/, ''))}&strategy=mobile`)
+        apiFetch(`/api/analytics/seo?siteId=${siteId}&url=${siteUrl}`),
+        apiFetch(`/api/lighthouse?url=${encodeURIComponent(siteUrl.replace(/^https?:\/\//, '').replace(/\/$/, ''))}&strategy=mobile`)
       ])
 
       if (seoResponse.ok) {

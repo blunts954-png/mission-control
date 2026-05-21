@@ -1,5 +1,6 @@
 'use client'
 
+import { apiFetch } from '@/lib/apiClient'
 import { motion } from 'framer-motion'
 import {
   Gauge,
@@ -126,7 +127,7 @@ export default function PerformanceCard({ siteId, url }: PerformanceCardProps) {
     const cleanUrl = url.replace(/^https?:\/\//, '').replace(/\/$/, '')
     try {
       setLoading(true)
-      const response = await fetch(`/api/lighthouse?url=${encodeURIComponent(cleanUrl)}&strategy=mobile${force ? `&t=${Date.now()}` : ''}`)
+      const response = await apiFetch(`/api/lighthouse?url=${encodeURIComponent(cleanUrl)}&strategy=mobile${force ? `&t=${Date.now()}` : ''}`)
       const data: LighthouseResult = await response.json()
       setLighthouseData(data)
 

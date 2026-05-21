@@ -1,6 +1,7 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
+import { apiFetch } from '@/lib/apiClient'
 import { useState, useEffect, useCallback } from 'react'
 import {
   Bot,
@@ -67,7 +68,7 @@ export default function AIFixRecommendations({ siteId, siteName, siteUrl }: AIFi
   const fetchIssues = useCallback(async () => {
     setIsAnalyzing(true)
     try {
-      const response = await fetch(`/api/ai/analyze?siteId=${siteId}&url=${siteUrl}`)
+      const response = await apiFetch(`/api/ai/analyze?siteId=${siteId}&url=${siteUrl}`)
       if (response.ok) {
         const data = await response.json()
         setIssues(data.issues)

@@ -17,6 +17,7 @@ import {
   Terminal,
   Copy
 } from 'lucide-react'
+import { apiFetch } from '@/lib/apiClient'
 import { useState, useEffect } from 'react'
 import { useToast } from '@/lib/toastContext'
 
@@ -153,7 +154,7 @@ export default function AIWatchdogCard({
   const runAnalysis = async () => {
     setIsAnalyzing(true)
     try {
-      const response = await fetch('/api/watchdog')
+      const response = await apiFetch('/api/watchdog')
       const data = await response.json()
       setReport(data)
       onAnalysisComplete?.(data)

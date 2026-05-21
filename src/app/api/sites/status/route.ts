@@ -105,8 +105,8 @@ async function checkSiteStatus(url: string): Promise<{ online: boolean; response
 }
 
 // Fetch Better Stack uptime data
-async function fetchBetterStackData(): Promise<Map<string, { uptime: number; responseTime: number }>> {
-  const apiKey = process.env.BETTER_STACK_UPTIME_API_KEY
+async function fetchBetterStackData(betterStackKey?: string): Promise<Map<string, { uptime: number; responseTime: number }>> {
+  const apiKey = betterStackKey || process.env.BETTER_STACK_UPTIME_API_KEY
   const dataMap = new Map<string, { uptime: number; responseTime: number }>()
 
   if (!apiKey) {
@@ -168,8 +168,8 @@ async function fetchBetterStackData(): Promise<Map<string, { uptime: number; res
 }
 
 // Fetch Netlify deploy status
-async function fetchNetlifyStatus(siteId: string): Promise<{ status: 'success' | 'failed' | 'building'; time: string } | null> {
-  const apiKey = process.env.NETLIFY_API_TOKEN
+async function fetchNetlifyStatus(siteId: string, netlifyToken?: string): Promise<{ status: 'success' | 'failed' | 'building'; time: string } | null> {
+  const apiKey = netlifyToken || process.env.NETLIFY_API_TOKEN
 
   if (!apiKey) {
     return null
@@ -213,17 +213,20 @@ export async function GET(request: NextRequest) {
       try { userSites = JSON.parse(decodeURIComponent(userSitesParam)) } catch {}
     }
 
+    const betterStackKey = request.headers.get('x-api-key-betterstack') || undefined
+    const netlifyKey = request.headers.get('x-api-key-netlify') || undefined
+
     const allSites = [...SITES_CONFIG, ...userSites.filter(u => !SITES_CONFIG.find(s => s.url === u.url))]
 
     // Fetch Better Stack data in parallel with site checks
     const [betterStackData, ...siteChecks] = await Promise.all([
-      fetchBetterStackData(),
+      fetchBetterStackData(betterStackKey),
       ...allSites.map(site => checkSiteStatus(site.url))
     ])
 
     // Fetch Netlify deploy status for all sites
     const netlifyStatuses = await Promise.all(
-      allSites.map(site => site.netlifyId ? fetchNetlifyStatus(site.netlifyId) : Promise.resolve(null))
+      allSites.map(site => site.netlifyId ? fetchNetlifyStatus(site.netlifyId, netlifyKey) : Promise.resolve(null))
     )
 
     // Build response
