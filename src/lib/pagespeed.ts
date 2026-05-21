@@ -57,7 +57,7 @@ function ratingFromValue(value: number, thresholds: { good: number; poor: number
 }
 
 export async function fetchLighthouse(url: string, strategy: 'mobile' | 'desktop' = 'mobile'): Promise<LighthouseResult> {
-  const apiKey = process.env.NEXT_PUBLIC_PAGESPEED_API_KEY || process.env.PAGESPEED_API_KEY
+  const apiKey = process.env.PAGESPEED_API_KEY
 
   if (!apiKey) {
     return {

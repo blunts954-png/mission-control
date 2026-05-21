@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { Globe, ChevronDown, Settings, Check } from 'lucide-react'
 import { SiteConfig } from '@/lib/siteConfig'
 
@@ -54,15 +53,11 @@ export default function SiteSelector({
         />
       </button>
 
-      <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.15 }}
+          <div
             className="absolute top-full left-0 right-0 mt-2 bg-cyber-dark border border-cyber-border
-                     rounded-lg shadow-xl z-50 overflow-hidden"
+                     rounded-lg shadow-xl z-50 overflow-hidden animate-fade-in"
+            style={{ animationDuration: '0.15s' }}
           >
             <div className="max-h-[300px] overflow-y-auto">
               {sites.map((site) => (
@@ -123,9 +118,8 @@ export default function SiteSelector({
                 Manage Sites ({sites.length}/10)
               </span>
             </button>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
     </div>
   )
 }

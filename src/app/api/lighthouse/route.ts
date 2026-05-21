@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+
+export const dynamic = 'force-dynamic'
 import { fetchLighthouse } from '@/lib/pagespeed'
 
 export async function GET(request: NextRequest) {

@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+
+export const dynamic = 'force-dynamic'
 import { runWatchdogAgent, generateWatchdogReport, analyzeHTML } from '@/lib/watchdogAgent'
 
 export async function POST(request: NextRequest) {

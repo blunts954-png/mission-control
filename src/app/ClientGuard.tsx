@@ -7,12 +7,12 @@ export default function ClientGuard({ children }: { children: ReactNode }) {
   useEffect(() => {
     const onError = (event: ErrorEvent) => {
       if (typeof window !== 'undefined' && 'reportError' in navigator) {
-        navigator.reportError(event.error || event.message)
+        ;(navigator as any).reportError(event.error || event.message)
       }
     }
     const onRejection = (event: PromiseRejectionEvent) => {
       if (typeof window !== 'undefined' && 'reportError' in navigator) {
-        navigator.reportError(event.reason)
+        ;(navigator as any).reportError(event.reason)
       }
     }
     window.addEventListener('error', onError)

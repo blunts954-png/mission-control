@@ -1,6 +1,5 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import { useState, useEffect, useCallback } from 'react'
 import {
   Globe,
@@ -142,18 +141,16 @@ export default function AllSitesOverview({ onSiteClick, userSites }: AllSitesOve
               Updated: {lastUpdate.toLocaleTimeString()}
             </span>
           )}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <button
             onClick={fetchAllSitesData}
             disabled={isRefreshing}
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neon-purple-500/20
                      text-neon-purple-500 border border-neon-purple-500/30 text-sm font-medium
-                     hover:bg-neon-purple-500/30 transition-colors disabled:opacity-50"
+                     hover:bg-neon-purple-500/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
             Refresh All
-          </motion.button>
+          </button>
         </div>
       </div>
 
@@ -163,15 +160,13 @@ export default function AllSitesOverview({ onSiteClick, userSites }: AllSitesOve
           const statusInfo = getStatusText(site.status)
 
           return (
-            <motion.div
+            <div
               key={site.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
               onClick={() => onSiteClick?.(site.id)}
-              className={`cyber-card cursor-pointer hover:border-neon-purple-500/50 transition-all ${
+              className={`cyber-card cursor-pointer hover:border-neon-purple-500/50 transition-all animate-fade-in ${
                 site.status === 'online' ? 'border-electric-green-500/20' : ''
               }`}
+              style={{ animationDelay: `${index * 0.1}s` }}
             >
               {/* Site Header */}
               <div className="flex items-start justify-between mb-4">
@@ -303,7 +298,7 @@ export default function AllSitesOverview({ onSiteClick, userSites }: AllSitesOve
                   <span>Netlify</span>
                 </div>
               </div>
-            </motion.div>
+            </div>
           )
         })}
       </div>

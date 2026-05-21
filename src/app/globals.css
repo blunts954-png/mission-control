@@ -2,9 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import Google Fonts with display=swap for performance */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
-
 :root {
   --neon-purple: #A855F7;
   --electric-green: #22C55E;
@@ -26,7 +23,7 @@ body {
   overflow-x: hidden;
   background: var(--cyber-black);
   color: #ffffff;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
 }
 
 /* Custom Scrollbar - Cyber Theme */

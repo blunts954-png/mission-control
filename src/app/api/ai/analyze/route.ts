@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 
+export const dynamic = 'force-dynamic'
+
 interface Issue {
   id: string
   category: 'performance' | 'security' | 'seo' | 'accessibility' | 'code'
